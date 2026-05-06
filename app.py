@@ -1,25 +1,21 @@
 # Flask
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 # SQLAlchemy
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, relationship
-from sqlalchemy import Integer, String, ForeignKey, select
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Integer, String, DATETIME, ForeignKey, select
 
 # intialise app
 app = Flask(__name__)
 
 # initialise db
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///focustrack.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 
-# models go here
-class Base(DeclarativeBase):
-    pass
-
-
-class Task(Base):
+class Task(db.Model):
     __tablename__ = "tasks"
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String)
@@ -28,9 +24,10 @@ class Task(Base):
     priority: Mapped[str] = mapped_column(String)
     created_at: Mapped[DATETIME] = mapped_column(DATETIME)
     due_date: Mapped[DATETIME] = mapped_column(DATETIME)
+    sessions: Mapped[list["Session"]] = relationship(back_populates="task")
 
 
-class Session(Base):
+class Session(db.Model):
     __tablename__ = "sessions"
     id: Mapped[int] = mapped_column(primary_key=True)
     # Foreign Key
@@ -49,10 +46,18 @@ def home():
     return render_template("home.html", tasks=tasks)
 
 
-@app.post("/add_item")
-def add_item():
-    # get the form data from the request object
-    item = request.form["item_name"]
+@app.route("/add_task", methods=["POST"])
+def add_task():
+    task = Task(
+        # get the form data from the request object
+        title=request.form["title"],
+    )
+
+    db.session.add(task)
+    db.session.commit()
+
+    return "Task added"
+
 
 if __name__ == "__main__":
     app.run(debug=True)
