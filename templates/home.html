@@ -1,9 +1,11 @@
 <!-- Extends base layout -->
-{% extends 'base.html' %}
 
-{% block content %}
+<form action="/add_task" method="post">
+    <label for="title">Title</label>
+    <input type="text" name="title">
+    <input type="submit" value="add">
 <h1>Testing</h1>
-{% endblock %}
+
 {% for task in tasks %}
     <p>{{ task.title }} : {{ task.description }} : {{ task.session.id }}</p>
 {% endfor %}
