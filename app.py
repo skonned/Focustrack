@@ -1,5 +1,5 @@
 # Flask
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 
 # SQLAlchemy
 from flask_sqlalchemy import SQLAlchemy
@@ -51,12 +51,21 @@ def add_task():
     task = Task(
         # get the form data from the request object
         title=request.form["title"],
+        description=request.form["description"],
     )
 
     db.session.add(task)
     db.session.commit()
 
-    return "Task added"
+    return redirect(url_for("task_detail", task_id=task.id))
+
+
+@app.route("/task/<int:task_id>")
+def task_detail(task_id):
+    task = db.session.get(Task, task_id)
+    if task is None:
+        return "Task not found", 404
+    return render_template("task.html", task=task)
 
 
 if __name__ == "__main__":
