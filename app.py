@@ -41,7 +41,7 @@ class Session(db.Model):
 # routes go here
 @app.route("/")
 def home():
-    # home page - shows all current tasks, completed tasks, progress, priority and ability to create new task
+    # home page - has all current tasks, completed tasks, progress, priority and ability to create new task
     tasks = db.session.execute(select(Task)).scalars()
     return render_template("home.html", tasks=tasks)
 

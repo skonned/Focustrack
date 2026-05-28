@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block body %}Focustrack{% endblock %}</title>
+    <title>{% block title %}Focustrack{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
 </head>
 <body>
     <header class="site-header">
-        <div class="header">
+        <div class="w3-container w3-margin-bottom">
             <a href="/" class="header-logo">Home</a>
         </div>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
 </body>
 </html>
