@@ -12,9 +12,15 @@
     <input type="submit" value="add">
 </form>
 
+<div class="task-container">
 {% for task in tasks %}
 <div class="w3-card">
     <p>{{ task.title }} : {{ task.description }}</p>
+    <form action="/delete" method="POST">
+        <input type="hidden" name="task-id" value="{{task.task_id}}">
+        <input type="submit" value="delete">
+    </form>
 </div>
 {% endfor %}
+</div>
 {% endblock %}
