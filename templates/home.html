@@ -3,8 +3,7 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<form class="w3-container">
-<form action="/add_task" method="post">
+<form class="w3-container" action="/add_task" method="POST">
     <label for="title">Title</label>
     <input type="text" name="title">
     <label for="description">Description</label>
@@ -16,8 +15,8 @@
 {% for task in tasks %}
 <div class="w3-card">
     <p>{{ task.title }} : {{ task.description }}</p>
-    <form action="/delete" method="POST">
-        <input type="hidden" name="task-id" value="{{task.task_id}}">
+    <form action="{{ url_for('delete', task_id=task.task_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this task?');">
+        <input type="hidden" name="task-id" value="{{ task.task_id }}">
         <input type="submit" value="delete">
     </form>
 </div>
