@@ -60,12 +60,15 @@ def add_task():
     return redirect("/")
 
 
-@app.route("/delete/<int:task_id>", methods=["POST"])
-def delete(task_id):
-    if request.method == "POST":
-        deleted_task = db.session.get(Task, task_id)
-        db.session.remove(deleted_task)
-        db.session.commit()
+@app.route("/delete", methods=["POST"])
+def delete():
+    task = Task(
+        id=request.form["id"],
+    )
+
+    db.session.delete(task)
+    db.session.commit()
+
     return redirect("/")
 
 
