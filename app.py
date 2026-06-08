@@ -1,5 +1,5 @@
 # Flask
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect
 
 # SQLAlchemy
 from flask_sqlalchemy import SQLAlchemy
@@ -60,11 +60,14 @@ def add_task():
     return redirect("/")
 
 
-@app.route("/delete", methods=["POST"])
-def delete():
-    task = Task(
-        id=request.form["id"],
-    )
+@app.route("/delete/<int:id>", methods=["POST"])
+def delete(id):
+    print(f"Deleting task {id}")
+
+    task = db.session.get(Task, id)
+
+    if task is None:
+        return "Task not found", 404
 
     db.session.delete(task)
     db.session.commit()
