@@ -75,9 +75,9 @@ def delete(id):
     return redirect("/")
 
 
-@app.route("/task/<int:task_id>")
-def task_detail(task_id):
-    task = db.session.get(Task, task_id)
+@app.route("/task/<int:id>")
+def task(id):
+    task = db.session.get(Task, id)
     if task is None:
         return "Task not found", 404
     return render_template("task.html", task=task)
