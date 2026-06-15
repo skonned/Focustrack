@@ -2,7 +2,11 @@
     display: grid;
     gap: 50px;
     grid-template-columns: 1fr 1fr;
-    width: 80%;
+    width: 90%;
     margin: auto;
     margin-top: 50px;
+}
+
+.site-header {
+    margin-top: 20px;
 }

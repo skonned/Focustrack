@@ -13,10 +13,10 @@
 
 <div class="task-container">
 {% for task in tasks %}
-<a href="/task/{{ task.id }}"></a>
-<div class="w3-card">
+<div class="w3-button w3-round w3-border w3-border-blue">
+    <a href="/task/{{ task.id }}">
     <p>{{ task.title }} : {{ task.description }}</p>
-</a>
+    </a>
     <form action="/delete/{{ task.id }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this task?');">
         <input type="submit" value="delete">
     </form>
