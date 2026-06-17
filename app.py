@@ -52,6 +52,7 @@ def add_task():
         # get the form data from the request object
         title=request.form["title"],
         description=request.form["description"],
+        priority=request.form["priority"],
     )
 
     db.session.add(task)
