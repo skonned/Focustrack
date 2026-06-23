@@ -1,5 +1,7 @@
 # Flask
 from flask import Flask, render_template, request, redirect
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # SQLAlchemy
 from flask_sqlalchemy import SQLAlchemy
@@ -37,6 +39,11 @@ class Session(db.Model):
     end_time: Mapped[DATETIME] = mapped_column(DATETIME)
     duration: Mapped[int] = mapped_column(Integer)
 
+
+class User(db.Model):
+    id = Mapped[int] = mapped_column(primary_key=True)
+    username = Mapped[str] = mapped_column(String)
+    password = Mapped[str] = mapped_column(String)
 
 # routes go here
 @app.route("/")
