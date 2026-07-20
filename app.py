@@ -1,5 +1,5 @@
 # Flask
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -14,6 +14,7 @@ app = Flask(__name__)
 # initialise db
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///focustrack.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SECRET_KEY"] = "test"
 db = SQLAlchemy(app)
 
 
@@ -41,9 +42,9 @@ class Session(db.Model):
 
 
 class User(db.Model):
-    id = Mapped[int] = mapped_column(primary_key=True)
-    username = Mapped[str] = mapped_column(String)
-    password = Mapped[str] = mapped_column(String)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String)
+    password: Mapped[str] = mapped_column(String)
 
 # routes go here
 @app.route("/")
@@ -55,6 +56,11 @@ def home():
 
 @app.route("/add_task", methods=["POST"])
 def add_task():
+    title = request.form.get("title")
+
+    if not title or not title.split():
+        return render_template("404.html", error="Title is required.")
+    
     task = Task(
         # get the form data from the request object
         title=request.form["title"],
