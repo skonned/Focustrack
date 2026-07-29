@@ -11,6 +11,20 @@
     <header class="site-header">
         <div class="w3-container w3-margin-bottom">
             <a href="/" class="header-logo">Home</a>
+            <form action="">
+                <input
+                    type="text" 
+                    name="username" 
+                    placeholder="Username"
+                >
+                <input 
+                    type="text" 
+                    name="password" 
+                    placeholder="Password"
+                >
+                <input type="submit" value="Login">
+                <input type="button" value="Register">
+            </form>
         </div>
     <main>
         {% block content %}{% endblock %}

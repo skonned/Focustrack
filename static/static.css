@@ -9,4 +9,5 @@
 
 .site-header {
     margin-top: 20px;
+    display: grid;
 }

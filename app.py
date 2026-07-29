@@ -1,6 +1,8 @@
 # Flask
 from flask import Flask, render_template, request, redirect, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+def load_user(user_id):
+    return User.get(user_id)
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # SQLAlchemy
@@ -17,6 +19,9 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = "test"
 db = SQLAlchemy(app)
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+@login_manager.user_loader
 
 class Task(db.Model):
     __tablename__ = "tasks"
@@ -45,6 +50,7 @@ class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String)
     password: Mapped[str] = mapped_column(String)
+
 
 # routes go here
 @app.route("/")
@@ -95,6 +101,30 @@ def task(id):
     if task is None:
         return "Task not found", 404
     return render_template("task.html", task=task)
+
+
+# login stuff
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    user = User(
+        username=request.form["username"],
+        password=request.form["password"],
+    )
+
+    db.session.add(user)
+    db.session.commit()
+    pass
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    pass
+
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template("dashboard.html", name=current_user.username)
 
 
 if __name__ == "__main__":
