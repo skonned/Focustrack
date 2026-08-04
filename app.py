@@ -1,28 +1,31 @@
 # Flask
-from flask import Flask, render_template, request, redirect, flash
+from flask import Flask, render_template, request, redirect, flash, session, url_for
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-def load_user(user_id):
-    return User.get(user_id)
 from werkzeug.security import generate_password_hash, check_password_hash
-
 # SQLAlchemy
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, DATETIME, ForeignKey, select
 
+
+def load_user(user_id):
+    return User.get(user_id)
+
+
 # intialise app
 app = Flask(__name__)
+app.secret_key = "28d2a6e444a7ad429dd240f8423417dfdffe3e0e86795832b1b42f1f27494de3"
 
 # initialise db
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///focustrack.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SECRET_KEY"] = "test"
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-@login_manager.user_loader
 
+
+@login_manager.user_loader
 class Task(db.Model):
     __tablename__ = "tasks"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -47,15 +50,27 @@ class Session(db.Model):
 
 
 class User(db.Model):
+    __tablename__ = "users"
     id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(String)
-    password: Mapped[str] = mapped_column(String)
+    username: Mapped[str] = mapped_column(String, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String, nullable=False)
+
+    def set_password(self, password):
+        # hash the password
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        # check if entered password is the same as the hashed password
+        return check_password_hash(self.password_hash, password)
 
 
-# routes go here
+# routes start here
+
 @app.route("/")
 def home():
     # home page - has all current tasks, completed tasks, progress, priority and ability to create new task
+    if "username" in session:
+        return redirect(url_for("dashboard"))
     tasks = db.session.execute(select(Task)).scalars()
     return render_template("home.html", tasks=tasks)
 
@@ -66,7 +81,6 @@ def add_task():
 
     if not title or not title.split():
         return render_template("404.html", error="Title is required.")
-    
     task = Task(
         # get the form data from the request object
         title=request.form["title"],
@@ -103,28 +117,56 @@ def task(id):
     return render_template("task.html", task=task)
 
 
-# login stuff
+# Start of login system
+
+# Signup route
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
-    user = User(
-        username=request.form["username"],
-        password=request.form["password"],
-    )
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        # check if user is already in the database
+        user = User.query.filter_by(username=username).first()
+        if user:  # if user is true, render home page and give error message
+            return render_template("home.html", error="There is already a user with this name.")
+    else:  # if the user doesn't already exist:
+        new_user = User(username=username)
+        new_user.set_password(password)
+        db.session.add(new_user)  # adds new user to the database
+        db.session.commit()  # commits new user to the database
+        session["username"] = username
+        return redirect(url_for("dashboard"))
 
-    db.session.add(user)
-    db.session.commit()
-    pass
 
-
-@app.route("/login", methods=["GET", "POST"])
+# Login route
+@app.route("/login", methods=["POST"])
 def login():
-    pass
+    # Collect info from the form
+    username = request.form["username"]
+    password = request.form["password"]
+
+    # Check if info is in the database to log the user in
+    user = User.query.filter_by(username=username).first()
+    if user and user.check_password(password):
+        session["username"] = username
+        return redirect(url_for("dashboard"))
+
+    # Otherwise show homepage because denied
+    else:
+        return render_template("home.html")
 
 
+# Dashboard route
 @app.route("/dashboard")
 @login_required
 def dashboard():
     return render_template("dashboard.html", name=current_user.username)
+
+
+# Logout route
+@app.route("/logout")
+def logout():
+    pass
 
 
 if __name__ == "__main__":
