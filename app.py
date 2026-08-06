@@ -120,15 +120,14 @@ def task(id):
 # Start of login system
 
 # Signup route
-@app.route("/signup", methods=["GET", "POST"])
+@app.route("/signup", methods=["POST"])
 def signup():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        # check if user is already in the database
-        user = User.query.filter_by(username=username).first()
-        if user:  # if user is true, render home page and give error message
-            return render_template("home.html", error="There is already a user with this name.")
+    username = request.form["username"]
+    password = request.form["password"]
+    # check if user is already in the database
+    user = User.query.filter_by(username=username).first()
+    if user:  # if user is true, render home page and give error message
+        return render_template("home.html", error="There is already a user with this name.")
     else:  # if the user doesn't already exist:
         new_user = User(username=username)
         new_user.set_password(password)
@@ -158,15 +157,17 @@ def login():
 
 # Dashboard route
 @app.route("/dashboard")
-@login_required
 def dashboard():
-    return render_template("dashboard.html", name=current_user.username)
+    if "username" in session:
+        return render_template("dashboard.html", username=session["username"])
+    return redirect(url_for("home"))  # if not logged in, return to home page
 
 
 # Logout route
 @app.route("/logout")
 def logout():
-    pass
+    session.pop("username", None)  # removes the user from the session
+    return redirect(url_for("home"))  # redirects the user back to the home page when logged out
 
 
 if __name__ == "__main__":
