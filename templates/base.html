@@ -11,7 +11,7 @@
     <header class="site-header">
         <div class="w3-container w3-margin-bottom">
             <a href="/" class="header-logo">Home</a>
-            <form id="auth-form" action="/signup" method="post">
+            <form id="auth-form" method="post">
                 <input
                     type="text" 
                     name="username" 
@@ -22,27 +22,10 @@
                     name="password" 
                     placeholder="Password"
                 >
-                <input type="submit" value="Login" onclick="setActionForm('login')">
-                <input type="submit" value="Signup" onclick="setActionForm('signup')"/>
+                <input type="submit" value="Login" formaction="/login"> <!-- If user clicks login, use the login route -->
+                <input type="submit" value="Signup" formaction="/signup"> <!-- If user clicks signup, use the signup route -->
             </form>
         </div>
-        
-        <script>
-            function setActionForm(action) { // check if button clicked is the login button or the register button
-                let form = document.getElementById("auth-form"); // take the html form
-            }
-
-            if (action === "login") { // if user clicks login
-                form.action = "{{url_for('login')}}";
-                form.method = "post";
-                form.sumbit();
-
-            } else if (action === "signup") { // if user clicks signup
-                form.aciton = "{{url_for('signup')}}";
-                form.method = "post";
-                form.submit();
-            }
-        </script>
     <main>
         {% block content %}{% endblock %}
     </main>

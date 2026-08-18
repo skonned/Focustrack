@@ -170,5 +170,11 @@ def logout():
     return redirect(url_for("home"))  # redirects the user back to the home page when logged out
 
 
+# Guest route, so the website does not require the user to log in to use it. However, the user cannot access your tasks from another device.
+@app.route("/guest")
+def guest():
+    return render_template("dashboard.html")
+
+
 if __name__ == "__main__":
     app.run(debug=True)
