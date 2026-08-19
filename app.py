@@ -1,15 +1,11 @@
 # Flask
-from flask import Flask, render_template, request, redirect, flash, session, url_for
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask import Flask, render_template, request, redirect, session, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 # SQLAlchemy
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, DATETIME, ForeignKey, select
-
-
-def load_user(user_id):
-    return User.get(user_id)
+from datetime import datetime, timezone
 
 
 # intialise app
@@ -21,21 +17,20 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///focustrack.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
-login_manager = LoginManager()
-login_manager.init_app(app)
 
-
-@login_manager.user_loader
 class Task(db.Model):
     __tablename__ = "tasks"
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String)
     description: Mapped[str] = mapped_column(String)
-    progress: Mapped[int] = mapped_column(Integer)
+    progress: Mapped[int] = mapped_column(Integer, default=0)
     priority: Mapped[str] = mapped_column(String)
-    created_at: Mapped[DATETIME] = mapped_column(DATETIME)
-    due_date: Mapped[DATETIME] = mapped_column(DATETIME)
+    created_at: Mapped[DATETIME] = mapped_column(DATETIME, default=lambda: datetime.now(timezone.utc))
+    due_date: Mapped[DATETIME] = mapped_column(DATETIME, nullable=True)
     sessions: Mapped[list["Session"]] = relationship(back_populates="task")
+    # Foreign Key
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    user: Mapped["User | None"] = relationship(back_populates="tasks")
 
 
 class Session(db.Model):
@@ -54,6 +49,7 @@ class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String, nullable=False)
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
+    tasks: Mapped[list["Task"]] = relationship(back_populates="user")
 
     def set_password(self, password):
         # hash the password
@@ -86,6 +82,7 @@ def add_task():
         title=request.form["title"],
         description=request.form["description"],
         priority=request.form["priority"],
+        user_id=session.get("user_id")
     )
 
     db.session.add(task)
@@ -127,13 +124,14 @@ def signup():
     # check if user is already in the database
     user = User.query.filter_by(username=username).first()
     if user:  # if user is true, render home page and give error message
-        return render_template("home.html", error="There is already a user with this name.")
+        return render_template("home.html", error="There is already someone with this username.")
     else:  # if the user doesn't already exist:
         new_user = User(username=username)
         new_user.set_password(password)
         db.session.add(new_user)  # adds new user to the database
         db.session.commit()  # commits new user to the database
         session["username"] = username
+        session["user_id"] = new_user.id
         return redirect(url_for("dashboard"))
 
 
@@ -148,6 +146,7 @@ def login():
     user = User.query.filter_by(username=username).first()
     if user and user.check_password(password):
         session["username"] = username
+        session["user_id"] = user.id
         return redirect(url_for("dashboard"))
 
     # Otherwise show homepage because denied
@@ -159,7 +158,8 @@ def login():
 @app.route("/dashboard")
 def dashboard():
     if "username" in session:
-        return render_template("dashboard.html", username=session["username"])
+        tasks = db.session.execute(select(Task)).scalars().all()
+        return render_template("dashboard.html", username=session["username"], tasks=tasks)
     return redirect(url_for("home"))  # if not logged in, return to home page
 
 

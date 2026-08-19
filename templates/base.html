@@ -11,20 +11,6 @@
     <header class="site-header">
         <div class="w3-container w3-margin-bottom">
             <a href="/" class="header-logo">Home</a>
-            <form id="auth-form" method="post">
-                <input
-                    type="text" 
-                    name="username" 
-                    placeholder="Username"
-                >
-                <input 
-                    type="text" 
-                    name="password" 
-                    placeholder="Password"
-                >
-                <input type="submit" value="Login" formaction="/login"> <!-- If user clicks login, use the login route -->
-                <input type="submit" value="Signup" formaction="/signup"> <!-- If user clicks signup, use the signup route -->
-            </form>
         </div>
     <main>
         {% block content %}{% endblock %}
