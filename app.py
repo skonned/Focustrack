@@ -64,11 +64,10 @@ class User(db.Model):
 
 @app.route("/")
 def home():
-    # home page - has all current tasks, completed tasks, progress, priority and ability to create new task
+    # home page - has ability to login or signup and also contains guest mode
     if "username" in session:
         return redirect(url_for("dashboard"))
-    tasks = db.session.execute(select(Task)).scalars()
-    return render_template("home.html", tasks=tasks)
+    return render_template("home.html")
 
 
 @app.route("/add_task", methods=["POST"])
@@ -79,12 +78,17 @@ def add_task():
     title = request.form.get("title")
 
     if not title or not title.split():
-        return render_template("404.html", error="Title is required.")
+        tasks = db.session.execute(select(Task).where(Task.user_id == session["user_id"])).scalars().all()
+        return render_template("dashboard.html", username=session["username"], tasks=tasks, error="A title is required.")
+    
+    due_date_value = request.form.get("due_date")
+
     task = Task(
         # get the form data from the request object
         title=request.form["title"],
         description=request.form["description"],
         priority=request.form["priority"],
+        due_date=datetime.fromisoformat(due_date_value) if due_date_value else None,
         user_id=session.get("user_id")
     )
 
@@ -171,6 +175,7 @@ def login():
 # Dashboard route
 @app.route("/dashboard")
 def dashboard():
+    # dashboard page - has all current tasks, completed tasks, progress, priority and ability to create new task
     if "user_id" not in session:
         return redirect(url_for("home"))  # if not logged in, return to home page
     tasks = db.session.execute(select(Task).where(Task.user_id == session["user_id"])).scalars().all()

@@ -6,6 +6,14 @@
 <h1>Title: {{ task.title }} </h1>
 <h2>Description: {{ task.description }} </h2>
 <h3>Priority: {{ task.priority }} </h3>
+<h3>
+    Due date:
+    {% if task.due_date %} 
+        {{ task.due_date.strftime("%B %d, %Y at %I:%M %p") }}
+    {% else %}
+        No due date
+    {% endif %}
+</h3>
 
 <a href="/logout" class="logout-button">Logout</a>
 {% endblock %}

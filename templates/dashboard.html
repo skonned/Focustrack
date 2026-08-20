@@ -14,8 +14,14 @@
     <input type="text" name="description">
     <label for="priority">Priority</label>
     <input type="text" name="priority">
+    <label for="due_date">Due date</label>
+    <input type="datetime-local" name="due_date">
     <input type="submit" value="add">
 </form>
+
+{% if error %}
+    <p style="color: red;">{{ error }}</p>
+{% endif %}
 
 <div class="task-container">
 {% for task in tasks %}
