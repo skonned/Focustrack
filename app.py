@@ -126,10 +126,10 @@ def signup():
     password = request.form["password"]
     # check if user is already in the database
     user = User.query.filter_by(username=username).first()
+    if not username or not password.strip():  # Checks for blank spaces or empty inputs
+        return render_template("home.html", error="You cannot leave your username or password blank.")
     if user:  # if user is true, render home page and give error message
         return render_template("home.html", error="There is already someone with this username.")
-    elif username == "" or password == "":
-        return render_template("home.html", error="You cannot leave your username or password blank.")
     else:  # if the user doesn't already exist:
         new_user = User(username=username)
         new_user.set_password(password)

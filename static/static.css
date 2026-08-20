@@ -11,3 +11,32 @@
     margin-top: 20px;
     display: grid;
 }
+
+.auth-container {
+    max-width: 50%;
+    margin: auto;
+}
+
+.home-title {
+    text-align: center;
+    font-size: xx-large;
+    margin-bottom: 20px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.guest-button {
+    display: block;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.error-message {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}

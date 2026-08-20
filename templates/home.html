@@ -3,22 +3,34 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<form id="auth-form" method="post">
-    <input
-        type="text" 
-        name="username" 
-        placeholder="Username"
-    >
-    <input 
-        type="password" 
-        name="password" 
-        placeholder="Password"
-    >
-    <input type="submit" value="Login" formaction="/login"> <!-- If user clicks login, use the login route -->
-    <input type="submit" value="Signup" formaction="/signup"> <!-- If user clicks signup, use the signup route -->
-</form>
+<div class="auth-container">
 
-{% if error %}
-    <p>{{ error }}</p>
-{% endif %}
+    <div class="home-title">
+        <p1>Focustrack</p1>
+    </div>
+
+    <form class="login-form" id="auth-form" method="post">
+        <input
+            type="text" 
+            name="username" 
+            placeholder="Username"
+        >
+        <input 
+            type="password" 
+            name="password" 
+            placeholder="Password"
+        >
+        <input type="submit" value="Login" formaction="/login"> <!-- If user clicks login, use the login route -->
+        <input type="submit" value="Signup" formaction="/signup"> <!-- If user clicks signup, use the signup route -->
+    </form>
+
+    <a class="guest-button" href="/guest">Guest Mode</a>
+
+    {% if error %}
+        <div class="error-message">
+            <p style="color: red;">{{ error }}</p>
+        </div>
+    {% endif %}
+    
+</div>
 {% endblock %}
