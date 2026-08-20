@@ -128,6 +128,8 @@ def signup():
     user = User.query.filter_by(username=username).first()
     if user:  # if user is true, render home page and give error message
         return render_template("home.html", error="There is already someone with this username.")
+    elif username == "" or password == "":
+        return render_template("home.html", error="You cannot leave your username or password blank.")
     else:  # if the user doesn't already exist:
         new_user = User(username=username)
         new_user.set_password(password)
@@ -154,7 +156,7 @@ def login():
 
     # Otherwise show homepage because denied
     else:
-        return render_template("home.html")
+        return render_template("home.html", error="Invalid credentials.")
 
 
 # Dashboard route
