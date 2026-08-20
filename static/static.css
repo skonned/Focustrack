@@ -39,3 +39,25 @@
     margin-bottom: 40px;
     text-align: center;
 }
+
+/* footer */
+
+.site-footer {
+  width: 100%;
+  text-align: center;
+  padding-bottom: 10px;
+  position: fixed;
+  bottom: 0;
+}
+
+
+.site-footer a { /* Makes email blue */
+  color: blue;
+  text-decoration: none;
+  margin: 0 0.5rem;
+}
+
+
+.site-footer a:hover { /* Makes the email have an underline when hovered over */
+  text-decoration: underline;
+}
