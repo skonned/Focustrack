@@ -124,12 +124,18 @@ def task(id):
 def signup():
     username = request.form["username"]
     password = request.form["password"]
-    # check if user is already in the database
-    user = User.query.filter_by(username=username).first()
+
+    if len(password) < 8:
+        return render_template("home.html", error="Your password must be at least 8 characters long.")
+
     if not username or not password.strip():  # Checks for blank spaces or empty inputs
         return render_template("home.html", error="You cannot leave your username or password blank.")
+
+    # check if user is already in the database
+    user = User.query.filter_by(username=username).first()
     if user:  # if user is true, render home page and give error message
         return render_template("home.html", error="There is already someone with this username.")
+
     else:  # if the user doesn't already exist:
         new_user = User(username=username)
         new_user.set_password(password)
@@ -147,6 +153,9 @@ def login():
     username = request.form["username"]
     password = request.form["password"]
 
+    if not username or not password.strip():  # Checks for blank spaces or empty inputs
+        return render_template("home.html", error="You cannot leave your username or password blank.")
+
     # Check if info is in the database to log the user in
     user = User.query.filter_by(username=username).first()
     if user and user.check_password(password):
@@ -156,7 +165,7 @@ def login():
 
     # Otherwise show homepage because denied
     else:
-        return render_template("home.html", error="Invalid credentials.")
+        return render_template("home.html", error="Incorrect username or password.")
 
 
 # Dashboard route
@@ -175,7 +184,8 @@ def logout():
     return redirect(url_for("home"))  # Redirects the user back to the home page when logged out
 
 
-# Guest route, so the website does not require the user to log in to use it. However, the user cannot access your tasks from another device.
+# Guest route, so the website does not require the user to log in to use it.
+# However, the user cannot access your tasks from another device.
 @app.route("/guest")
 def guest():
     return render_template("dashboard.html", username="Guest", tasks=[])
