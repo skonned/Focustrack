@@ -73,6 +73,9 @@ def home():
 
 @app.route("/add_task", methods=["POST"])
 def add_task():
+    if "user_id" not in session:
+        return redirect(url_for("home"))
+
     title = request.form.get("title")
 
     if not title or not title.split():
@@ -114,7 +117,7 @@ def task(id):
     return render_template("task.html", task=task)
 
 
-# Start of login system
+# --------------- Start of login system ------------------
 
 # Signup route
 @app.route("/signup", methods=["POST"])
@@ -157,23 +160,23 @@ def login():
 # Dashboard route
 @app.route("/dashboard")
 def dashboard():
-    if "username" in session:
-        tasks = db.session.execute(select(Task)).scalars().all()
-        return render_template("dashboard.html", username=session["username"], tasks=tasks)
-    return redirect(url_for("home"))  # if not logged in, return to home page
+    if "user_id" not in session:
+        return redirect(url_for("home"))  # if not logged in, return to home page
+    tasks = db.session.execute(select(Task).where(Task.user_id == session["user_id"])).scalars().all()
+    return render_template("dashboard.html", username=session["username"], tasks=tasks)
 
 
 # Logout route
 @app.route("/logout")
 def logout():
-    session.pop("username", None)  # removes the user from the session
-    return redirect(url_for("home"))  # redirects the user back to the home page when logged out
+    session.clear()
+    return redirect(url_for("home"))  # Redirects the user back to the home page when logged out
 
 
 # Guest route, so the website does not require the user to log in to use it. However, the user cannot access your tasks from another device.
 @app.route("/guest")
 def guest():
-    return render_template("dashboard.html")
+    return render_template("dashboard.html", username="Guest", tasks=[])
 
 
 if __name__ == "__main__":
