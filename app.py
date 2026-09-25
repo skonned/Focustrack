@@ -80,7 +80,7 @@ def add_task():
     if not title or not title.split():
         tasks = db.session.execute(select(Task).where(Task.user_id == session["user_id"])).scalars().all()
         return render_template("dashboard.html", username=session["username"], tasks=tasks, error="A title is required.")
-    
+
     due_date_value = request.form.get("due_date")
 
     task = Task(
@@ -132,7 +132,7 @@ def signup():
     if len(password) < 8:
         return render_template("home.html", error="Your password must be at least 8 characters long.")
 
-    if not username or not password.strip():  # Checks for blank spaces or empty inputs
+    if not username.strip() or not password.strip():  # Checks for blank spaces or empty inputs
         return render_template("home.html", error="You cannot leave your username or password blank.")
 
     # check if user is already in the database
