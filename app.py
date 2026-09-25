@@ -31,7 +31,12 @@ class Task(db.Model):
     title: Mapped[str] = mapped_column(String)
     description: Mapped[str] = mapped_column(String)
     progress: Mapped[int] = mapped_column(Integer, default=0)
-    priority: Mapped[str] = mapped_column(String)
+
+    priority_id: Mapped[int] = mapped_column(
+        ForeignKey("priorities.id")
+    )
+    priority: Mapped["Priority"] = relationship(back_populates="tasks")
+
     created_at: Mapped[DATETIME] = mapped_column(DATETIME, default=lambda: datetime.now(timezone.utc))
     due_date: Mapped[DATETIME] = mapped_column(DATETIME, nullable=True)
     sessions: Mapped[list["Session"]] = relationship(back_populates="task")
@@ -45,6 +50,14 @@ class Task(db.Model):
         secondary=task_tags,
         back_populates="tasks"
     )
+
+
+class Priority(db.Model):
+    __tablename__ = "priorities"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String)
+
+    tasks: Mapped[list["Task"]] = relationship(back_populates="priority")
 
 
 class Tag(db.Model):
@@ -107,7 +120,8 @@ def add_task():
         tasks = db.session.execute(select(Task).where(Task.user_id == session["user_id"])).scalars().all()
         return render_template("dashboard.html", username=session["username"], tasks=tasks, error="A title is required.")
 
-    due_date_value = request.form.get("due_date")
+    due_date_value = request.form.get("due_date")        
+    selected_tags = request.form.getlist("tags")
 
     task = Task(
         # get the form data from the request object
@@ -119,6 +133,12 @@ def add_task():
     )
 
     db.session.add(task)
+
+    for tag_id in selected_tags:
+        tag = db.session.get(Tag, int(tag_id))
+        if tag:
+            task.tags.append(tag)
+
     db.session.commit()
 
     return redirect("/")
