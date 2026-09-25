@@ -127,7 +127,7 @@ def add_task():
         # get the form data from the request object
         title=request.form["title"],
         description=request.form["description"],
-        priority=request.form["priority"],
+        priority_id=request.form["priority_id"],
         due_date=datetime.fromisoformat(due_date_value) if due_date_value else None,
         user_id=session.get("user_id")
     )
