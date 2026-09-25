@@ -18,6 +18,13 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 
+task_tags = db.Table(
+    "task_tags",
+    db.Column("task_id", db.Integer, db.ForeignKey("tasks.id"), primary_key=True),
+    db.Column("tag_id", db.Integer, db.ForeignKey("tags.id"), primary_key=True)
+)
+
+
 class Task(db.Model):
     __tablename__ = "tasks"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -28,9 +35,28 @@ class Task(db.Model):
     created_at: Mapped[DATETIME] = mapped_column(DATETIME, default=lambda: datetime.now(timezone.utc))
     due_date: Mapped[DATETIME] = mapped_column(DATETIME, nullable=True)
     sessions: Mapped[list["Session"]] = relationship(back_populates="task")
+
     # Foreign Key
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     user: Mapped["User | None"] = relationship(back_populates="tasks")
+
+    # Many to Many
+    tags: Mapped[list["Tag"]] = relationship(
+        secondary=task_tags,
+        back_populates="tasks"
+    )
+
+
+class Tag(db.Model):
+    __tablename__ = "tags"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+
+    # Many to Many
+    tasks: Mapped[list["Task"]] = relationship(
+        secondary=task_tags,
+        back_populates="tags"
+    )
 
 
 class Session(db.Model):
