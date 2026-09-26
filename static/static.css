@@ -28,19 +28,28 @@
 }
 
 .login-form {
+    max-width: 480px;
+    margin: 0 auto 1.25rem;
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.guest-button {
+.guest-button.w3-button.w3-round.w3-border.w3-border-blue {
     display: block;
-    margin-top: 10px;
+    width: 480px;
+    margin: 12px auto 0;
+    padding: 0.8rem 1.2rem;
     text-align: center;
 }
 
 .error-message {
     margin-bottom: 40px;
+    text-align: center;
+}
+
+.description{
+    margin-top: 100px;
     text-align: center;
 }
 

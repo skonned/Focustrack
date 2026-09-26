@@ -6,7 +6,7 @@
 <div class="auth-container">
 
     <div class="home-title">
-        <p1>Focustrack</p1>
+        <h1>Focustrack</h1>
     </div>
 
     <form class="login-form" id="auth-form" method="post">
@@ -24,15 +24,16 @@
         <input type="submit" value="Signup" formaction="/signup"> <!-- If user clicks signup, use the signup route -->
     </form>
 
-    <a class="guest-button" href="/guest">Guest Mode</a>
+    <a class="guest-button w3-button w3-round w3-border w3-border-blue" href="/guest">Guest Mode</a>
 
     {% if error %}
         <div class="error-message">
             <p style="color: red;">{{ error }}</p>
         </div>
     {% endif %}
-
+    <div class="description w3-border w3-border-blue">
     <h1>What is Focustrack?</h1>
-    <h2>Focustrack is a website that helps anyone to keep track of their tasks more easier and efficiently. In this website, you can start sessions to motivate you to concentrate and edit the details of each task like title, progress, priority, etc.</h2>
+    <h3>Focustrack is a website that helps anyone to keep track of their tasks more easier and efficiently. In this website, you can start sessions to motivate you to concentrate and edit the details of each task like title, progress, priority, etc.</h3>
+    </div>
 </div>
 {% endblock %}
