@@ -1,5 +1,6 @@
-# Flask
+"""Flask application for Focustrack."""
 
+from datetime import datetime, timezone
 from flask import Flask, render_template, request, redirect, session, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -7,7 +8,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, DATETIME, ForeignKey, select
-from datetime import datetime, timezone
 
 
 # intialise app
@@ -126,11 +126,11 @@ class User(db.Model):
     tasks: Mapped[list["Task"]] = relationship(back_populates="user")
 
     def set_password(self, password):
-        # hash the password before saving it
+        """Hash the password before saving it."""
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
-        # check if entered password is the same as the hashed password
+        """Check if the entered password is the same as the hashed password."""
         return check_password_hash(self.password_hash, password)
 
 
@@ -196,12 +196,12 @@ def add_task():
     return redirect("/")
 
 
-@app.route("/delete/<int:id>", methods=["POST"])
-def delete(id):
+@app.route("/delete/<int:task_id>", methods=["POST"])
+def delete(task_id):
     """Deletes a task by its id"""
-    print(f"Deleting task {id}")
+    print(f"Deleting task {task_id}")
 
-    task = db.session.get(Task, id)
+    task = db.session.get(Task, task_id)
 
     if task is None:
         return "Task not found", 404
@@ -212,10 +212,10 @@ def delete(id):
     return redirect("/")
 
 
-@app.route("/task/<int:id>")
-def task(id):
+@app.route("/task/<int:task_id>")
+def view_task(task_id):
     """Displays details of a task"""
-    task = db.session.get(Task, id)
+    task = db.session.get(Task, task_id)
     if task is None:
         return "Task not found", 404
     return render_template("task.html", task=task)
