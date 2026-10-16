@@ -2,55 +2,71 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>Welcome {{username}}!</h1>
-    <a href="/logout" class="w3-button w3-round w3-border w3-border-blue">Logout</a>
-</div>
+<section class="dashboard-page">
+    <header class="dashboard-header">
+        <div>
+            <h1>Welcome {{ username }}!</h1>
+            <p>Keep your tasks organized and moving forward.</p>
+        </div>
+        <a href="/logout" class="w3-button w3-round w3-border w3-border-blue">Logout</a>
+    </header>
 
-<form class="w3-container" action="/add_task" method="POST">
-    <label for="title">Title</label>
-    <input type="text" name="title">
-    <label for="description">Description</label>
-    <input type="text" name="description">
-    <label for="priority">Priority</label>
-    <select name="priority_id" id="priority_id">
-        <option value="1">Low</option>
-        <option value="2">Medium</option>
-        <option value="3">High</option>    
-    </select>
-    <label>Tags:</label>
+    <section class="dashboard-add-section" aria-labelledby="add-task-heading">
+        <h2 id="add-task-heading">Add a task:</h2>
+        <form class="dashboard-add-form" action="/add_task" method="POST">
+            <div class="title-field-heading">
+                <label for="title">Title:</label>
+                {% if error %}
+                    <span class="error-message" role="alert">{{ error }}</span>
+                {% endif %}
+            </div>
+            <input id="title" type="text" name="title" maxlength="50">
 
-    <input type="checkbox" name="tags" value="1">
-    <label for="homework">Homework</label>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="3" maxlength="300"></textarea>
 
-    <input type="checkbox" name="tags" value="2">
-    <label for="personal">Personal</label>
+            <label for="priority_id">Priority:</label>
+            <select name="priority_id" id="priority_id">
+                <option value="1">Low</option>
+                <option value="2">Medium</option>
+                <option value="3">High</option>
+            </select>
 
-    <input type="checkbox" name="tags" value="3">
-    <label for="social">Social</label>
+            <fieldset class="dashboard-tag-options">
+                <legend>Tags:</legend>
+                <label><input type="checkbox" name="tags" value="1"> Homework</label>
+                <label><input type="checkbox" name="tags" value="2"> Personal</label>
+                <label><input type="checkbox" name="tags" value="3"> Social</label>
+                <label><input type="checkbox" name="tags" value="4"> Family</label>
+            </fieldset>
 
-    <input type="checkbox" name="tags" value="4">
-    <label for="family">Family |</label>
+            <label for="due_date">Due date:</label>
+            <input id="due_date" type="datetime-local" name="due_date">
 
-    <label for="due_date">Due date</label>
-    <input type="datetime-local" name="due_date">
-    <input type="submit" value="add">
-</form>
+            <button class="w3-button w3-round w3-border w3-border-blue" type="submit">Add task</button>
+        </form>
+    </section>
 
-{% if error %}
-    <p style="color: red;">{{ error }}</p>
-{% endif %}
-
-<div class="task-container">
-{% for task in tasks %}
-<div class="w3-button w3-round w3-border w3-border-blue">
-    <a href="/task/{{ task.id }}">
-    <p> Title: {{ task.title }} | Description: {{ task.description }} | Priority: {{ task.priority }}</p>
-    </a>
-    <form action="/delete/{{ task.id }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this task?');">
-        <input type="submit" value="Delete Task">
-    </form>
-</div>
-{% endfor %}
-</div>
+    <section class="dashboard-tasks-section" aria-labelledby="tasks-heading">
+        <h2 id="tasks-heading">Your tasks</h2>
+        {% if tasks %}
+            <div class="task-container">
+                {% for task in tasks %}
+                    <article class="dashboard-task-card">
+                        <a class="dashboard-task-link" href="/task/{{ task.id }}">
+                            <h3>{{ task.title }}</h3>
+                            <p class="dashboard-task-description">{{ task.description }}</p>
+                            <p><strong>Priority:</strong> {{ task.priority.name }}</p>
+                        </a>
+                        <form action="/delete/{{ task.id }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this task?');">
+                            <button class="dashboard-delete-button" type="submit">Delete task</button>
+                        </form>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No tasks yet. Add one above to get started.</p>
+        {% endif %}
+    </section>
+</section>
 {% endblock %}

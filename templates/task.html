@@ -3,17 +3,77 @@
 {% block title %}{{task.title}}{% endblock %}
 
 {% block content %}
-<h1>Title: {{ task.title }} </h1>
-<h2>Description: {{ task.description }} </h2>
-<h3>Priority: {{ task.priority }} </h3>
-<h3>
-    Due date:
-    {% if task.due_date %} 
-        {{ task.due_date.strftime("%B %d, %Y at %I:%M %p") }}
-    {% else %}
-        No due date
-    {% endif %}
-</h3>
+<section class="task-detail">
+    <h1><strong>{{ task.title }}:</strong></h1>
+    <p class="task-description"><strong>Description:</strong> {{ task.description }}</p>
+    <p><strong>Priority:</strong> {{ task.priority.name }}</p>
+    <p><strong>Progress:</strong> {{ task.progress }}%</p>
+    <p>
+        <strong>Due date:</strong>
+        {% if task.due_date %}
+            {{ task.due_date.strftime("%B %d, %Y at %I:%M %p") }}
+        {% else %}
+            No due date
+        {% endif %}
+    </p>
+    <p>
+        <strong>Tags:</strong>
+        {% if task.tags %}
+            {% for tag in task.tags %}{{ tag.name }}{% if not loop.last %}, {% endif %}{% endfor %}
+        {% else %}
+            None
+        {% endif %}
+    </p>
 
-<a href="/logout" class="w3-button w3-round w3-border w3-border-blue">Logout</a>
+    {% if can_edit %}
+        <h2><strong>Update task:</strong></h2>
+        {% if error %}
+            <p class="error-message" role="alert">{{ error }}</p>
+        {% endif %}
+        <form class="task-edit-form" action="{{ url_for('update_task', task_id=task.id) }}" method="POST">
+            <label for="title">Title:</label>
+            <input id="title" name="title" type="text"
+                   value="{{ form_data.get('title', task.title) if form_data else task.title }}" required>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="4">{{ form_data.get('description', task.description) if form_data else task.description }}</textarea>
+
+            <label for="priority_id">Priority:</label>
+            <select id="priority_id" name="priority_id" required>
+                {% for priority in priorities %}
+                    <option value="{{ priority.id }}"
+                            {% if (form_data and form_data.get('priority_id')|int == priority.id) or (not form_data and task.priority_id == priority.id) %}selected{% endif %}>
+                        {{ priority.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="progress">Progress (%):</label>
+            <input id="progress" name="progress" type="number" min="0" max="100"
+                   value="{{ form_data.get('progress', task.progress) if form_data else task.progress }}" required>
+
+            <label for="due_date">Due date:</label>
+            <input id="due_date" name="due_date" type="datetime-local"
+                   value="{{ form_data.get('due_date', '') if form_data else (task.due_date.strftime('%Y-%m-%dT%H:%M') if task.due_date else '') }}">
+
+            <fieldset>
+                <legend>Tags:</legend>
+                {% for tag in tags %}
+                    <label class="tag-option">
+                        <input type="checkbox" name="tags" value="{{ tag.id }}"
+                               {% if (form_data and tag.id|string in form_data.getlist('tags')) or (not form_data and tag in task.tags) %}checked{% endif %}>
+                        {{ tag.name }}
+                    </label>
+                {% endfor %}
+            </fieldset>
+
+            <button class="w3-button w3-round w3-border w3-border-blue" type="submit">Save changes</button>
+        </form>
+    {% endif %}
+
+    <a href="{{ url_for('guest') if session.get('guest_mode') else url_for('dashboard') }}" 
+       class="w3-button w3-round w3-border w3-border-blue">
+       Back to dashboard
+    </a>
+</section>
 {% endblock %}
